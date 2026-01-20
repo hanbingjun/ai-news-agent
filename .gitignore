@@ -1,0 +1,14 @@
+# Environment
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Output
+output/*.md
+
+# IDE
+.idea/
+.vscode/
+*.swp
