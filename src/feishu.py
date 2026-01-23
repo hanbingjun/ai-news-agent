@@ -3,6 +3,10 @@ Feishu (Lark) webhook notification module.
 """
 
 import os
+import time
+import hmac
+import hashlib
+import base64
 import httpx
 
 
@@ -13,6 +17,19 @@ class FeishuNotifier:
         self.webhook_url = os.getenv("FEISHU_WEBHOOK_URL")
         if not self.webhook_url:
             raise ValueError("FEISHU_WEBHOOK_URL environment variable is required")
+        # Optional: signing secret for secure webhooks
+        self.secret = os.getenv("FEISHU_WEBHOOK_SECRET")
+
+    def _generate_sign(self, timestamp: int) -> str:
+        """Generate signature for Feishu webhook."""
+        if not self.secret:
+            return ""
+        string_to_sign = f"{timestamp}\n{self.secret}"
+        hmac_code = hmac.new(
+            string_to_sign.encode("utf-8"),
+            digestmod=hashlib.sha256
+        ).digest()
+        return base64.b64encode(hmac_code).decode("utf-8")
 
     def send_markdown(self, title: str, content: str) -> bool:
         """
@@ -20,8 +37,8 @@ class FeishuNotifier:
 
         Note: Feishu webhook has message size limits, so we may need to truncate.
         """
-        # Feishu uses a specific format for rich text messages
-        # For simplicity, we'll use the text card format
+        timestamp = int(time.time())
+
         payload = {
             "msg_type": "interactive",
             "card": {
@@ -40,6 +57,11 @@ class FeishuNotifier:
                 ],
             },
         }
+
+        # Add signature if secret is configured
+        if self.secret:
+            payload["timestamp"] = str(timestamp)
+            payload["sign"] = self._generate_sign(timestamp)
 
         try:
             response = httpx.post(
@@ -66,9 +88,7 @@ class FeishuNotifier:
         if len(content) <= max_length:
             return content
 
-        # Truncate and add notice
         truncated = content[: max_length - 50]
-        # Try to cut at a line break
         last_newline = truncated.rfind("\n")
         if last_newline > max_length // 2:
             truncated = truncated[:last_newline]
@@ -77,10 +97,16 @@ class FeishuNotifier:
 
     def send_simple_text(self, text: str) -> bool:
         """Send a simple text message to Feishu."""
+        timestamp = int(time.time())
+
         payload = {
             "msg_type": "text",
             "content": {"text": text},
         }
+
+        if self.secret:
+            payload["timestamp"] = str(timestamp)
+            payload["sign"] = self._generate_sign(timestamp)
 
         try:
             response = httpx.post(

@@ -28,7 +28,7 @@ class NewsProcessor:
 
         try:
             response = self.client.messages.create(
-                model="claude-3-5-haiku-latest",
+                model="claude-3-haiku-20240307",
                 max_tokens=100,
                 messages=[{"role": "user", "content": prompt}],
             )
@@ -58,7 +58,7 @@ class NewsProcessor:
 
         try:
             response = self.client.messages.create(
-                model="claude-3-5-haiku-latest",
+                model="claude-3-haiku-20240307",
                 max_tokens=300,
                 messages=[{"role": "user", "content": summary_prompt}],
             )
