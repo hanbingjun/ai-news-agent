@@ -47,7 +47,7 @@ def main():
     print("\n[3/3] Sending to Feishu...")
     try:
         notifier = FeishuNotifier()
-        success = notifier.send_markdown(f"AI 资讯日报 - {today}", report)
+        success = notifier.send_markdown(f"AI 新闻日报 - {today}", report)
         if success:
             print("Successfully sent to Feishu!")
         else:
