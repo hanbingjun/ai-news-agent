@@ -102,13 +102,29 @@ class NewsProcessor:
                 report += "\n"
 
         if twitter_items:
-            report += "### Twitter/X\n\n"
-            for i, item in enumerate(twitter_items[:10], 1):
-                report += f"{i}. [{item.title}]({item.url})\n"
-                if item.content:
-                    summary = item.content[:100].replace("\n", " ")
-                    report += f"   - 摘要: {summary}...\n"
-                report += "\n"
+            # Separate influencer tweets from general tweets
+            influencer_items = [i for i in twitter_items if i.author]
+            general_twitter = [i for i in twitter_items if not i.author]
+
+            if influencer_items:
+                report += "### AI 大神动态\n\n"
+                for i, item in enumerate(influencer_items[:10], 1):
+                    author_info = f"**@{item.author}** ({item.author_name})"
+                    report += f"{i}. {author_info}\n"
+                    report += f"   - [{item.title}]({item.url})\n"
+                    if item.content:
+                        summary = item.content[:100].replace("\n", " ")
+                        report += f"   - {summary}...\n"
+                    report += "\n"
+
+            if general_twitter:
+                report += "### Twitter/X 热门\n\n"
+                for i, item in enumerate(general_twitter[:10], 1):
+                    report += f"{i}. [{item.title}]({item.url})\n"
+                    if item.content:
+                        summary = item.content[:100].replace("\n", " ")
+                        report += f"   - 摘要: {summary}...\n"
+                    report += "\n"
 
         report += f"""---
 
