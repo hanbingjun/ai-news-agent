@@ -19,17 +19,17 @@ class NewsProcessor:
 
     def summarize_item(self, item: NewsItem) -> str:
         """Generate a brief Chinese summary for a single news item."""
-        prompt = f"""请用中文为以下内容生成一句话摘要（不超过50字）：
+        prompt = f"""请用中文为以下内容生成摘要（80-120字），说明主要内容和关键观点：
 
 标题：{item.title}
-内容：{item.content[:500] if item.content else "无"}
+内容：{item.content[:800] if item.content else "无"}
 
 只输出摘要，不要其他内容。"""
 
         try:
             response = self.client.messages.create(
                 model="claude-3-haiku-20240307",
-                max_tokens=100,
+                max_tokens=200,
                 messages=[{"role": "user", "content": prompt}],
             )
             return response.content[0].text.strip()

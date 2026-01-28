@@ -1,15 +1,15 @@
-name: Daily AI News Report
+name: Daily AI News Reports
 
 on:
   schedule:
-    # Run daily at 08:00 UTC
+    # Run daily at 08:00 UTC (北京时间 16:00)
     - cron: '0 8 * * *'
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  collect-and-notify:
+  # Job 1: AI 新闻日报 (社交媒体资讯)
+  ai-news-report:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -39,6 +39,40 @@ jobs:
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
         with:
-          name: daily-report
-          path: output/
+          name: ai-news-report
+          path: output/report_*.md
+          retention-days: 30
+
+  # Job 2: 图灵的下午茶 (软硬协同分析)
+  turing-tea-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Turing Tea Agent
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          FEISHU_WEBHOOK_SECRET: ${{ secrets.FEISHU_WEBHOOK_SECRET }}
+        working-directory: src
+        run: python -m turing_tea.main
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: turing-tea-report
+          path: output/turing_tea_*.md
           retention-days: 30

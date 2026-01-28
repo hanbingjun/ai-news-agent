@@ -1,26 +1,29 @@
 """
-Main entry point for AI News Agent (社交媒体 AI 资讯).
+Main entry point for 图灵的下午茶 Agent.
 """
 
 import os
 import sys
 from datetime import datetime
-from dotenv import load_dotenv
 
-from collector import NewsCollector
-from processor import NewsProcessor
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from dotenv import load_dotenv
+from turing_tea.collector import TuringTeaCollector
+from turing_tea.processor import TuringTeaProcessor
 from feishu import FeishuNotifier
 
 
 def main():
-    """Run the complete news collection and notification pipeline."""
+    """Run the 图灵的下午茶 news pipeline."""
     load_dotenv()
 
-    print(f"Starting AI News Agent at {datetime.utcnow().isoformat()}")
+    print(f"Starting 图灵的下午茶 Agent at {datetime.utcnow().isoformat()}")
 
     # Step 1: Collect news
-    print("\n[1/3] Collecting news...")
-    collector = NewsCollector()
+    print("\n[1/3] Collecting AI hardware/software news...")
+    collector = TuringTeaCollector()
     items = collector.collect_all()
 
     if not items:
@@ -28,16 +31,16 @@ def main():
         return
 
     # Step 2: Process and generate report
-    print("\n[2/3] Generating report...")
-    processor = NewsProcessor()
-    report = processor.generate_daily_report(items)
+    print("\n[2/3] Generating professional analysis...")
+    processor = TuringTeaProcessor()
+    report = processor.generate_report(items)
 
     # Save report to file
-    output_dir = os.path.join(os.path.dirname(__file__), "..", "output")
+    output_dir = os.path.join(os.path.dirname(__file__), "..", "..", "output")
     os.makedirs(output_dir, exist_ok=True)
 
     today = datetime.utcnow().strftime("%Y-%m-%d")
-    output_path = os.path.join(output_dir, f"report_{today}.md")
+    output_path = os.path.join(output_dir, f"turing_tea_{today}.md")
 
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(report)
@@ -47,7 +50,7 @@ def main():
     print("\n[3/3] Sending to Feishu...")
     try:
         notifier = FeishuNotifier()
-        success = notifier.send_markdown(f"AI 新闻日报 - {today}", report)
+        success = notifier.send_markdown(f"☕ 图灵的下午茶 - {today}", report)
         if success:
             print("Successfully sent to Feishu!")
         else:
