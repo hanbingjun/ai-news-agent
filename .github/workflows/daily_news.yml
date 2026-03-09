@@ -1,10 +1,7 @@
 name: Daily AI News Reports
 
 on:
-  schedule:
-    # Run daily at 08:00 UTC (北京时间 16:00)
-    - cron: '0 8 * * *'
-  workflow_dispatch:  # Allow manual trigger
+  workflow_dispatch:  # Allow manual trigger only
 
 jobs:
   # Job 1: AI 新闻日报 (社交媒体资讯)
